@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>数据绑定和第一个vue应用</title>
+        <script src="https://cdn.jsdelivr.net/npm/vue@2/dist/vue.js"></script>
+    </head>
+
+    <body>
+        <div id="app">
+            <input type="text" v-model="name" placeholder="你的名字"/>
+            <!-- 这是 vue 中固定格式, 这种 {{ vue 中的data 中的属性}} -->
+            <p>你好, {{name}}</p>
+            <p>时间: {{date | formatDate}}</p>
+
+            <!-- 接收 html 类型的数据 使用 v-html -->
+            <span v-html="link"></span>
+
+            <!-- 对于标签内的元素不进行编译处理 使用 v-pre -->
+            <p>
+                <span v-pre>{{name}}</span>
+            </p>
+
+            <p>
+                {{number / 10}} <br/>
+                {{isOK ? '确认' : '取消'}} <br/>
+                {{text.split(',').reverse().join(',')}}
+            </p>
+
+            
+            <a v-bind:href="url">百度查询</a> <br/>
+            <img v-bind:src="imageURL" /> <br/>
+            
+            <p v-if="show">是否展示P标签</p>
+            <button v-on:click="handleClose">点击隐藏</button>
+            <button v-on:click="show = false">点击隐藏</button>
+            
+
+        </div>
+        
+        <script>
+            var mineData = {a : 1}
+
+            const padDate = function(value) {
+                return value < 10 ? '0' + value : value;
+            }
+
+            const app = new Vue({
+                // 固定写法, 内部包含 选择器
+                el: '#app',
+                // 选择器中的数据
+                data: {
+                    // v-model 使用案例
+                    name: 'zhangsan',
+                    
+                    // 数据变化案例
+                    mine: mineData,
+                    
+                    // 时间案例
+                    date: new Date(),
+
+                    // v-html 使用案例
+                    link: '<a href="http://www.baidu.com">http://www.baidu.com</a>',
+
+                    // {{}} 使用简单函数案例
+                    number: 100,
+                    isOK: true,
+                    text: '123,456',
+
+                    // v-if 指令使用
+                    show: true,
+
+                    // v-bind 指令使用
+                    url: 'http://www.baidu.com',
+                    imageURL: './01_MVVM图示.png'
+
+                    // v-on 指令的用法
+
+
+                },
+
+                // vue 初始化的使用使用, 这时候还没有加载元素
+                created: function() {
+                    console.log("created :" + this.mine.a);
+                },
+
+                mounted: function() {
+                    var abc = this.$el;
+                    console.log("mounted :" + this.$el.innerHTML);
+                    
+                    var _this = this;
+                    _this.timer = setInterval(function() {
+                        _this.date = new Date();    // 通过定时器 修改 date 数据
+                    }, 10);
+
+                    console.log(_this == this);
+                },
+
+                beforeDestroy: function() {
+                    console.log("beforeDestroy :" + this.mine.a);
+
+                    if(this.timer) {
+                        clearInterval(this.timer);  // 在 vue 实例销毁之前, 清除我们的定时器
+                    }
+                },
+                
+                // 过滤器的使用 
+                filters: {
+                    formatDate: function(value) {
+                        var date = new Date(value);
+                        var year = padDate(date.getFullYear());
+                        var mont = padDate(date.getMonth() + 1);
+                        var days = padDate(date.getDate());
+                        var hour = padDate(date.getHours());
+                        var mins = padDate(date.getMinutes());
+                        var secs = padDate(date.getSeconds());
+
+                        return year + '-' + mont + '-' + days + ' ' + hour + ':' + mins + ':' + secs;
+                    }
+                },
+                
+                methods: {
+                    init: function() {
+                        return new Date();
+                    },
+
+                    handleClose: function() {
+                        close();
+                    },
+
+                    close: function() {
+                        this.show = false;
+                    }
+                },
+            });
+            
+            
+            app.mine.a = 100;
+            console.log(app.mine.a);    // 100, 直接修改属性  ViewModel 中数据的值!
+
+            mineData.a = 10;
+            console.log(app.mine.a);    // 10, 修改外部数据, 直接影响到 ViewModel 中的数据的修改
+            
+            console.log(app.init());    // 在 vue 外部也可以调用 app 中的方法!
+
+
+        </script>
+    </body>
+</html>
